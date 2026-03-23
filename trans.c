@@ -18,6 +18,24 @@ void textFile(FILE *readPtr);
 void updateRecord(FILE *fPtr);
 void newRecord(FILE *fPtr);
 void deleteRecord(FILE *fPtr);
+#include <time.h>
+
+void printDateTime()
+{
+    time_t t;
+    struct tm *tm_info;
+
+    time(&t);                      // get current time
+    tm_info = localtime(&t);       // convert to local time
+
+    printf("Date & Time: %02d/%02d/%04d %02d:%02d:%02d\n",
+           tm_info->tm_mday,
+           tm_info->tm_mon + 1,
+           tm_info->tm_year + 1900,
+           tm_info->tm_hour,
+           tm_info->tm_min,
+           tm_info->tm_sec);
+}
 
 int main(int argc, char *argv[])
 {
@@ -128,10 +146,10 @@ void updateRecord(FILE *fPtr)
         client.balance += transaction; // update record balance
 
         printf("%-6d%-16s%-11s%10.2f\n", client.acctNum, client.lastName, client.firstName, client.balance);
-
+        printDateTime();
         // move file pointer to correct record in file
         // move back by 1 record length
-        fseek(fPtr, -sizeof(struct clientData), SEEK_CUR);
+        fseek(fPtr, -(long)sizeof(struct clientData),SEEK_CUR);
         // write updated record over old record in file
         fwrite(&client, sizeof(struct clientData), 1, fPtr);
     } // end else
@@ -163,6 +181,7 @@ void deleteRecord(FILE *fPtr)
         fseek(fPtr, (accountNum - 1) * sizeof(struct clientData), SEEK_SET);
         // replace existing record with blank record
         fwrite(&blankClient, sizeof(struct clientData), 1, fPtr);
+        printDateTime();
     } // end else
 } // end function deleteRecord
 
@@ -197,6 +216,7 @@ void newRecord(FILE *fPtr)
         fseek(fPtr, (client.acctNum - 1) * sizeof(struct clientData), SEEK_SET);
         // insert record in file
         fwrite(&client, sizeof(struct clientData), 1, fPtr);
+        printDateTime();
     } // end else
 } // end function newRecord
 
